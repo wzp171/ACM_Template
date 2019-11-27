@@ -1,0 +1,57 @@
+合并石子进阶版。
+给你一堆石子，可以合并连续的X堆，L<=x<=R,每次合并所花费的时间是所合并的石子的数量。求最小花费时间。
+//#include <bits/stdc++.h>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+typedef long long ll;
+const ll mx = 2e5 + 7;
+const ll inf = 8e9+7;
+ll dp[117][117][117]={0};  //i->j的区间内被分成K堆
+ll a[177];
+ll pre[117];
+ll su[117][117];
+int main() {
+    ios_base::sync_with_stdio(false);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    int n,l,r;
+    while (cin>>n>>l>>r) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++)
+                for (int k = 1; k <= n; k++)
+                    dp[i][j][k] = inf;
+        }
+        pre[0] = 0;
+        for (int i = 1; i <= n; i++) {
+            cin >> a[i];
+            dp[i][i][1] = 0;   //当前堆被分成自己这堆，无消耗，因为r>=l>=2;
+            pre[i] = pre[i - 1] + a[i];
+        }
+        for (int len = l-1; len < r; len++) {  //枚举符合的长度
+            for (int i = 1; i <= n - len; i++) {
+                int j = i + len;
+                dp[i][j][1] = pre[j] - pre[i - 1]; //合并成1堆的最小花费是石头的总和
+                dp[i][j][1+len] = 0;   //x堆石头，分成x堆的花费是0
+            }
+        }
+        for (int x = 1; x < n; x++) {  //枚举整个区间的长度
+            for (int i = 1; i + x <= n; i++) {
+                int j = x + i;
+                for (int k = i; k < j; k++) {
+                    for (int c = 2; c <= x + 1; c++)  //对长度进行任意划分
+                        dp[i][j][c] = min(dp[i][j][c], dp[i][k][c - 1] + dp[k+1][j][1]);
+                }
+                for (int c = l; c <= r; c++)  //计算满足条件的值
+                    dp[i][j][1] = min(dp[i][j][1], dp[i][j][c] + pre[j] - pre[i - 1]);
+            }
+        }
+        if (dp[1][n][1]>=inf)
+            cout<<0<<endl;
+        else
+            cout<<dp[1][n][1]<<endl;
+    }
+    return 0;
+}

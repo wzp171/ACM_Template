@@ -1,0 +1,46 @@
+P2365任务分配
+N个任务排成一个序列在一台机器上等待完成（顺序不得改变），这N个任务被分成若干批，
+每批包含相邻的若干任务。从时刻0开始，这些任务被分批加工，第i个任务单独完成所需的时间是Ti。
+在每批任务开始前，机器需要启动时间S，而完成这批任务所需的时间是各个任务需要时间的总和
+（同一批任务将在同一时刻完成）。每个任务的费用是它的完成时刻乘以一个费用系数Fi。
+请确定一个分组方案，使得总费用最小。
+DP[J] = C[J](T[I]+S)+DP[I]-T[I]C[I]-SC[N]; 把这个方程想象为f(x) = kx+b。那么f(x)就是DP[J]。
+k是(T[I]+S)。x是C[J]，b就是DP[I]-T[I]C[I]-SC[N]。那么这样的方程就可画出一条折线来，因为我们要DP[I]最小，
+那就是b最小，所以我们要找所有折点中能让b最小的点。这里可以用手动模拟一下。
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int mx = 3e5 + 7;
+const ll INF = 8e9 + 7;
+struct node {
+    ll a, b;
+} z[mx];
+ll pret[mx],prec[mx];
+ll dp[mx];
+ll q[mx];
+int main() {
+    ios_base::sync_with_stdio(false);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    int s,n;
+    cin>>n>>s;
+    pret[0] = prec[0] = 0;
+    for (int i=1;i<=n;i++) {
+        cin >> z[i].a >> z[i].b;
+        pret[i] += pret[i-1]+z[i].a;
+        prec[i] += prec[i-1]+z[i].b;
+        dp[i] = INF*INF;
+    }
+    dp[0] = 0;
+    int l =1,r = 1;
+    for (int i=1;i<=n;i++){
+        while (l<r && (dp[q[l+1]]-dp[q[l]])<=(s+pret[i])*(prec[q[l+1]]-prec[q[l]])) l++;
+        dp[i] = dp[q[l]]+pret[i]*prec[i] + s*prec[n] - prec[q[l]]*(s+pret[i]);
+        while (l<r && (dp[i] - dp[q[r]])*(prec[q[r]]-prec[q[r-1]])<= (dp[q[r]] -dp[q[r-1]])*(prec[i] - prec[q[r]])) r--;
+        q[++r] = i;
+    }
+    cout<<dp[n]<<endl;
+    return 0;
+}

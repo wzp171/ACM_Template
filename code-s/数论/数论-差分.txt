@@ -1,0 +1,63 @@
+给你一个已知长度为N的序列，让你求这个序列后M项，因为这个序列可以用多项式表示，所以可以每层差分。
+然后一直差分N-1次：如1 2 4，差分第一次1 2 ，第二次1。然后给几个m就在最后一次差分的地方放上和第一个位置一样的值。
+然后可以看到 dp[i-1][j+1] = dp[i][j] + dp[i-1][j];这样的显然规律。倒着推着回去就OK了。
+差分还可以：差分就是将数列中的每一项分别与前一项数做差，例如：
+一个序列1 2 5 4 7 3，差分后得到1 1 3 -1 3 -4 -3
+这里注意得到的差分序列第一个数和原来的第一个数一样（相当于第一个数减0）
+差分序列最后比原序列多一个数（相当于0减最后一个数）
+性质：
+1、差分序列求前缀和可得原序列
+2、将原序列区间[L,R]中的元素全部+1，可以转化操作为差分序列L处+1，R+1处-1
+3、按照性质2得到，每次修改原序列一个区间+1，那么每次差分序列修改处增加的和减少的相同
+#include <bits/stdc++.h>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+typedef long long ll;
+const ll mx = 3e5 + 7;
+const ll inf = 8e9+7;
+const ll mod = 1e9+7;
+ll dp[1007][1007];
+ll a[mx],ans[mx];
+void solve(){
+    int n,m;
+    cin>>n>>m;
+    for (int i=1;i<=n;i++){
+        cin>>dp[1][i];
+    }
+    for (int i=2;i<=n;i++){
+        for (int j=1;j<=n-i+1;j++){
+            dp[i][j] = dp[i-1][j+1] - dp[i-1][j];
+        }
+    }
+    for (int i=1;i<=m;i++)
+        dp[n][1+i] = dp[n][1];
+
+    for(int i=n;i>=2;i--){
+        for (int j=1;j<=n-i+1+m;j++){
+            dp[i-1][j+1] = dp[i][j] + dp[i-1][j];
+        }
+    }
+    for(int i=1;i<=m;i++){
+        if (i!=m)
+            cout<<dp[1][n+i]<<" ";
+        else
+            cout<<dp[1][n+i]<<endl;
+    }
+}
+int main() {
+    ios_base::sync_with_stdio(false);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    //auto start = clock();
+    int t;
+    cin>>t;
+    for(int Case = 1;Case<=t;Case++) {
+        solve();
+    }
+    //auto end = clock();
+    //cerr << "Run Time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
+    return 0;
+}

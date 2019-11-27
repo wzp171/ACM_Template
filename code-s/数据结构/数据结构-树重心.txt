@@ -1,0 +1,65 @@
+树重心：树的重心也叫树的质心。对于一棵树n个节点的无根树，找到一个点，使得把树变成以该点为根的有根树时，最大子树的结点数最小。换句话说，删除这个点后最大连通块（一定是树）的结点数最小。
+树重心的性质：
+1.树中所有点到某个点的距离和中，到重心的距离和是最小的，如果有两个距离和，他们的距离和一样。
+2.把两棵树通过一条边相连，新的树的重心在原来两棵树重心的连线上。
+3.一棵树添加或者删除一个节点，树的重心最多只移动一条边的位置。
+4.一棵树最多有两个重心，且相邻。
+
+
+#include  <bits/stdc++.h>
+
+using namespace std;
+const int mx =  200000+7;
+typedef long long ll;
+typedef unsigned  long long ull;
+vector<int> ve[mx];
+ll d[mx];
+ll n;
+ll minnode =0,minnoden=0;
+void dfs(int u,int fa){
+    d[u] = 1; //节点本身
+    ll masub = 0;
+
+    int son = ve[u].size(); //msub是节点为u的最大子树的节点个数
+    for(int i=0;i<son;i++) {
+        int k = ve[u][i];
+        if (k!=fa) {
+            dfs(k,u);
+            d[u] += d[k];
+            masub = max(masub,d[k]);
+        }
+    }
+    masub = max(masub,n-d[u]);   //主要用来防止一条链的情况,看看父亲的情况
+    if (minnoden>masub){
+        minnode = u;
+        minnoden = masub;
+    }
+}
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    int t;
+    cin>>t;
+    while(t--){
+        cin>>n;
+        minnode = 0,minnoden = mx*mx;
+        memset(d,0,sizeof(d));
+        for(int i=1;i<=n-1;i++){
+            int u,v;
+            cin>>u>>v;
+            ve[u].push_back(v);
+            ve[v].push_back(u);
+            int sst = ve[v].size();
+        }
+        dfs(1,0);
+        cout<<minnode<<" "<<minnoden<<endl;
+        for(int i=1;i<=n;i++)
+            ve[i].clear();
+    }
+}

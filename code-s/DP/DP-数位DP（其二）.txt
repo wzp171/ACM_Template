@@ -1,0 +1,58 @@
+这题的约束就是一个数的二进制中0的数量要不能少于1的数量，通过上一题HDU 4734，这题状态就很简单了。
+dp[pos][num],到当前数位pos,0的数量减去1的数量不少于num的方案数，一个简单的问题，
+中间某个pos位上num可能为负数(这不一定是非法的，因为我还没枚举完嘛，只要最终的num>=0才能判合法，
+中途某个pos就不一定了)，这里比较好处理，Hash嘛，最小就-32吧(好像),直接加上64，把64当0用。
+这题主要是要想讲一下lead的用法，显然我要统计0的数量，前导零是有影响的
+ POJ 3252
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+const ll mx = 2e5 + 7;
+const ll inf = 1e9+7;
+const ll mo = 1e9+7;
+const int mod =2520;
+
+ll a[77];
+ll dp[77][177];
+ll dfs(int pos,int sumn,bool lead0,bool limit) {
+    if (pos <= 0) return sumn >= 64;
+    if (!lead0 && !limit && dp[pos][sumn] != -1) return dp[pos][sumn];
+    int up = limit ? a[pos] : 1;
+    ll rst = 0;
+    for (int i = 0; i <= up; i++) {
+        if (lead0 && i == 0)
+            rst += dfs(pos - 1, sumn, lead0, limit && i == a[pos]);
+        else
+            rst += dfs(pos - 1, sumn + (i == 0 ? 1 : -1), lead0 && i == 0, limit && i == a[pos]);
+    }
+    if (!limit&&!lead0)
+        dp[pos][sumn] = rst;
+    return rst;
+}
+ll solve(ll x){
+    int pos = 0;
+    while (x) {
+        a[++pos] = x & 1;
+        x = x >> 1;
+    }
+    ll aa = dfs(pos,64,1,true);
+    return aa;
+}
+int main() {
+    ios_base::sync_with_stdio(false);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    //auto start = clock();
+
+
+    memset(dp,-1,sizeof(dp));
+    ll n,m;
+    cin>>n>>m;
+    cout<<solve(m) - solve(n-1)<<endl;
+    //auto end = clock();
+    //cerr << "Run Time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
+    return 0;
+}

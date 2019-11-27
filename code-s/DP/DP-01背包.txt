@@ -1,0 +1,39 @@
+给你N个东西，M元，每个东西有喜爱度a和价格W，满意度树a*W,问最大满意度。01背包,N个物品，每个一件，问最大。
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int mx = 2e5 + 7;
+const int s = 300*500+7;
+const int mo = 1e9+7;
+ll dp[s]={0};
+ll a[mx],w[mx];
+bool cmp(int a,int b){
+    return a>=b;
+}
+int main(){
+    ios_base::sync_with_stdio(false);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    int n,m;
+    cin>>n>>m;
+    for (int i=1;i<=m;i++){
+        cin>>a[i]>>w[i];
+    }
+    dp[0] = 0;
+    for (int j = 1; j <= m; j++) {
+        for (int i=n;i>=1;i--)    //注意容量是倒序
+            if (i - a[j] > 0)
+                dp[i] = max(dp[i], dp[i - a[j]] + a[j] * w[j]);
+    }
+    cout<<dp[n]<<endl;
+    return 0;
+}
+上限为n，那么正好到N的花费有几种
+    for (int j = 1; j <= m; j++) {
+        for (int i = n; i >= 1; i--) {   //注意容量是倒序
+            if (i>=a[j])
+                dp[i]+=dp[i-a[j]];
+        }
+    }

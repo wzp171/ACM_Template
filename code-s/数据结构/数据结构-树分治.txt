@@ -1,0 +1,117 @@
+//#include <bits/stdc++.h>
+#include<algorithm>
+#include<vector>
+#include<iostream>
+#include <cstring>
+using namespace std;
+typedef long long ll;
+typedef unsigned  long long ull;
+const int mx = 4e5 + 7;
+const ll inf = 9e12 + 7;
+struct node {
+    ll w;
+    ll to;
+};
+vector<node> ve[mx];
+vector<ll>dis;
+ll d[mx], mart[mx];
+int vis[mx];
+ll n, k, ans = 0, sum, mi;
+ll minnode = 0, minnoden = inf;
+void find_size(int u, int fa) {
+    sum++; //树大小
+    d[u] = 1; //节点本身
+    mart[u] = 0;
+    int son = ve[u].size(); //msub是节点为u的最大子树的节点个数
+    for (int i = 0; i < son; i++) {
+        int v = ve[u][i].to;
+        if (vis[v] != 1 && v != fa) {
+            find_size(v, u);
+            d[u] += d[v];
+            mart[u] = max(mart[u], d[v]);
+        }
+    }
+}
+void find_point(int u, int fa) {
+    int son = ve[u].size();
+    for (int i = 0; i < son; i++) {
+        int v = ve[u][i].to;
+        if (vis[v] != 1&&v != fa) {
+            find_point(v, u);
+        }
+    }
+    ll ma=max(mart[u], sum - d[u]);
+    if (minnoden > ma) {
+        minnode = u;
+        minnoden = ma ;
+    }
+}
+void find_dis(int rt, int fa, int d) {
+    dis.push_back(d);
+    for (int i = 0; i < ve[rt].size(); i++) {
+        int v = ve[rt][i].to;
+        if (vis[v] == 1||fa == v) continue;
+        find_dis(v, rt, d + ve[rt][i].w);
+    }
+}
+ll work(int rt, int d) {
+    ll ret = 0;
+    dis.clear();
+    find_dis(rt, 0, d);
+    sort(dis.begin(), dis.end());
+    int i = 0, j = dis.size() - 1;
+    while (i < j) {
+        while (i<j && dis[i] + dis[j]>k) j--;
+        ret += j - i;
+        i++;
+    }
+    return ret;
+}
+void dfs(int rt, int fa) {
+    minnode = 0, minnoden = inf;
+    sum = 0;
+    find_size(rt, fa);
+    find_point(rt, fa);
+    rt = minnode;
+    ans += work(rt, 0);
+    vis[rt] = 1;
+    for (int i = 0; i < ve[rt].size(); i++) {
+        int v = ve[rt][i].to;
+        if (rt == v||vis[v]==1) continue;
+        ans -= work(v, ve[rt][i].w);
+        dfs(v, rt);
+    }
+}
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+//#ifdef ACM_LOCAL
+//    freopen("input.txt", "r", stdin);
+//	  freopen("output.txt", "w", stdout);
+//#endif
+    while(cin >> n >> k) {
+        if (n == 0 && k == 0)
+            break;
+        memset(vis, 0, sizeof(vis));
+        memset(d, 0, sizeof(d));
+        memset(mart, 0, sizeof(mart));
+        ans = 0;
+        for(int i=1;i<=mx;i++)
+            ve[i].clear();
+        for (int i = 1; i < n; i++) {
+            int u, v, w;
+            cin >> u >> v;
+            cin >> w;
+            node aaa;
+            aaa.w = w;
+            aaa.to = v;
+            ve[u].push_back(aaa);
+            aaa.to = u;
+            ve[v].push_back(aaa);
+        }
+        dfs(1, 0);
+        cout << ans << endl;
+    }
+    return 0;
+}

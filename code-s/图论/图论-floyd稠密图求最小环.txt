@@ -1,0 +1,58 @@
+#include<cstdio>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+const int maxn=1005;
+const int maxm=2005;
+const int INF=0x7fffffff;
+int n,m,s,mina=INF;
+int d[maxn][maxn],mp[maxn][maxn],p[maxn][maxn];
+void init()
+{
+    for(int i=1;i<=n;i++)
+    for(int j=1;j<=n;j++)
+        d[i][j]=mp[i][j]=INF;
+    for(int i=1;i<=n;i++) d[i][i]=mp[i][i]=0;
+}
+void floyd()
+{
+    for(int k=1;k<=n;k++)
+    {
+        for(int i=1;i<k;i++)  
+        for(int j=i+1;j<k;j++)   
+            mina=min(d[i][j]+mp[j][k]+mp[k][i],mina);   //主要是环内不存在重复的点
+             
+        for(int i=1;i<=n;i++)
+        for(int j=1;j<=n;j++)
+        if(d[i][k]<INF&&d[k][j]<INF)
+            d[i][j]=min(d[i][j],d[i][k]+d[k][j]),p[i][j]=k;
+    }
+}
+void floyd2() {  //我自己写的以防万一
+    for (int k = 1; k < n; k++) {
+        for (int i = 1; i < k; i++) {
+            for (int j = i + 1; j <= k; j++)
+                ans = min(ans, d[k][i] + mp[i][j] + d[j][k]);
+        }
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++)
+                mp[i][j] = min(mp[i][j], mp[i][k] + mp[k][j]);
+        }
+    }
+}
+void output(int i,int j)
+{
+    if(i==j) return;
+    if(p[i][j]==0) printf("%d ",j);
+    else{output(i,p[i][j]);output(p[i][j],j);}
+}
+int main()
+{
+    scanf("%d%d%d",&n,&m,&s);
+    int x,y,z;
+    init();//如果给的是一个矩阵，这个不是很需要  稠密图一般大于某个数如（128）即可不用向上考虑，必然有答案是3
+    for(int i=1;i<=m;i++) {scanf("%d%d%d",&x,&y,&z);mp[x][y]=d[x][y]=min(z,d[x][y]);}
+    floyd();
+    for(int i=1;i<=n;i++) printf("%d ",d[s][i]);
+    return 0;
+}

@@ -1,0 +1,46 @@
+windy定义了一种windy数。不含前导零且相邻两个数字之差至少为2的正整数被称为windy数。 windy想知道，
+在A和B之间，包括A和B，总共有多少个windy数？模板前导0典型题目。
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+const ll mx = 2e5 + 7;
+const ll inf = 1e9+7;
+const ll mo = 1e9+7;
+ll dp[20][20],a[20];
+
+ll dfs(int pos,int pre,bool lead0,int limit) {
+    if (pos == 0) return 1;
+    if (!lead0&&!limit && dp[pos][pre] != -1) return dp[pos][pre];
+    int up = limit ? a[pos] : 9;
+    ll rst = 0;
+    for (int i = 0; i <= up; i++) {
+        if (abs(pre - i) < 2) continue;
+        int f = i;
+        if (lead0 && i == 0) f = -23;
+        rst += dfs(pos - 1, f, (f == -23), limit && i == a[pos]);
+    }
+    if (!limit && !lead0) dp[pos][pre] = rst;
+    return rst;
+}
+
+ll solve(ll x){
+    int pos = 0;
+    while (x){
+        a[++pos] = x%10;
+        x/=10;
+    }
+    return dfs(pos,-23,true,true);
+}
+int main() {
+    ios_base::sync_with_stdio(false);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    ll n,m;
+    cin>>n>>m;
+    memset(dp,-1,sizeof(dp));
+    cout<<solve(m) - solve(n-1)<<endl;
+    return 0;
+}

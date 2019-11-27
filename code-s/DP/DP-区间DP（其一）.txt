@@ -1,0 +1,41 @@
+https://www.luogu.org/problem/P1220
+一个人，N个灯，开始人在M位置，接下里表示每个灯的位置和功率，经过多少距离花对应多少时间
+问最省的关灯策略是什么，用这个方案能耗能最少，考虑回来回关，比如前面这个太小，那么先关后面的，再回来关前面的。
+DP方程就是上面了，0代表人停在i点（左边），1代表人停在j（右边）。
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int mx = 2e6 + 7;
+const int mo = 1e9+7;
+const int inf = 8e9+7;
+ll sum[107];
+ll a[107],w[107];
+ll dp[107][107][2];
+int main() {
+    ios_base::sync_with_stdio(false);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    int n, m;
+    cin >> n >> m;
+    sum[0] = 0;
+    for (int i = 1; i <= n; i++)
+        cin >> a[i]>>w[i], sum[i] += sum[i-1]+w[i];
+    for (int i=1;i<=n;i++){
+        for (int j=1;j<=n;j++)
+            dp[i][j][1] = dp[i][j][0] = inf;
+    }
+    dp[m][m][0] = dp[m][m][1] = 0;
+    for(int k=1;k<=n;k++) {
+        for (int i = 1; i <= n - k; i++) {
+            int j = i + k;
+            dp[i][j][0] = min(dp[i + 1][j][0] + (a[i + 1] - a[i]) * (sum[n] + sum[i] - sum[j]),
+                              dp[i + 1][j][1] + (a[j] - a[i]) * (sum[n] + sum[i] - sum[j]));
+            dp[i][j][1] = min(dp[i][j - 1][1] + (a[j] - a[j - 1]) * (sum[n] + sum[i] - sum[j] - w[i] + w[j]),
+                              dp[i][j - 1][0] + (a[j] - a[i]) * (sum[n] + sum[i] - sum[j] - w[i] + w[j]));
+        }
+    }
+    cout<<min(dp[1][n][1],dp[1][n][0])<<endl;
+    return 0;
+}

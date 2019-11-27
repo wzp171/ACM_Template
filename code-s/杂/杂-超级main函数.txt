@@ -1,0 +1,30 @@
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+#ifdef ACM_LOCAL
+    freopen("in.txt", "r", stdin);
+    freopen("out.txt", "w", stdout);
+    long long test_index_for_debug = 1;
+    char acm_local_for_debug;
+    while (cin >> acm_local_for_debug) {
+        cin.putback(acm_local_for_debug);
+        if (test_index_for_debug > 100) {
+            throw runtime_error("Check the stdin!!!");
+        }
+        cout << "Test " << test_index_for_debug << ":" << endl;
+        auto start_clock_for_debug = clock();
+        solve();
+        auto end_clock_for_debug = clock();
+        cerr << "Test " << test_index_for_debug++ << " Run Time: "
+             << double(end_clock_for_debug - start_clock_for_debug) / CLOCKS_PER_SEC << "s" << endl;
+        cout << "\n--------------------------------------------------" << endl;
+    }
+#else
+    solve();
+#endif
+    return 0;
+}
+ios_base::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);

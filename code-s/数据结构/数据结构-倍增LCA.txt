@@ -1,0 +1,77 @@
+//#include <bits/stdc++.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <cstring>
+using namespace std;
+const int mx = 2e5 + 7;
+typedef long long ll;
+typedef unsigned  long long ull;
+vector<ll> e[mx];
+int n,depth[mx],fa[mx][20],h[mx];
+
+void dfs(int pre,int rt){
+    depth[rt] = depth[pre]+1;
+    fa[rt][0] = pre;
+    for(int i=1;i<20;i++)
+        fa[rt][i] = fa[fa[rt][i-1]][i-1];
+    for(int i=0;i<e[rt].size();i++)
+        dfs(rt,e[rt][i]);
+}
+int LCA(int x,int y){
+    if(depth[x]<depth[y]){
+        swap(x,y);
+    }
+    if(x==y)
+        return x;
+    for(int i=19;i>=0;i--) {
+        if (depth[x] - (1 << i) >= depth[y])
+            x = fa[x][i];
+    }
+    if(x==y)
+        return x;
+    for(int i=19;i>=0;i--){
+        if(fa[x][i]!=fa[y][i])
+            x = fa[x][i],y=fa[y][i];
+    }
+    return fa[x][0];
+}
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    int t;
+    cin>>t;
+    while (t--)
+    {
+        memset(h,0,sizeof(h));
+        memset(depth,0,sizeof(depth));
+        cin>>n;
+        for(int i=1;i<=n-1;i++){
+            int u,v;
+            cin>>u>>v;
+            e[u].push_back(v);
+            h[v]++;
+        }
+        int rt=1;
+        for(int i=1;i<=n;i++){
+            if (h[i]==0) {
+                rt = i;
+                break;
+            }
+        }
+        dfs(0,rt);
+        int u,v;
+        cin>>u>>v;
+        cout<<LCA(u,v)<<endl;
+        for(int i=1;i<=n;i++)
+            e[i].clear();
+    }
+    return 0;
+}
+

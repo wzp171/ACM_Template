@@ -1,0 +1,77 @@
+题目适用范围：数位dp是一种计数用的dp，一般就是要统计一个区间[le,ri]内满足一些条件数的个数。
+解释：所谓数位dp，字面意思就是在数位上进行dp咯。数位还算是比较好听的名字。
+数位的含义：一个数有个位、十位、百位、千位......数的每一位就是数位啦！
+codeforce55D 问一个范围内有几个数他能被自己所有位置上的数字整除（不包含0）；
+#include <bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const ll mx = 2e5 + 7;
+const ll inf = 1e9+7;
+const ll mo = 1e9+7;
+const int mod =2520;
+ll dp[20][3000][50];
+int a[20];
+ll sta[3000];
+inline ll gcd(int a, int b) {
+    return b ? gcd(b, a % b) : a;
+}
+inline ll lcm (int a, int b) {
+    if(a == 0 || b == 0)return a + b;
+    return a * b / gcd(a, b);
+}
+//设dp[i][j][k]为第i位，最高位到第i + 1位构成的数取模2520为j的数最高位到第i + 1位的数的lcm是k的方案数。
+ll dfs(int pos,int sumn,int lcms,int limit) {
+    if (pos == 0)
+        return sumn%lcms==0;
+
+    if (!limit && dp[pos][sumn][sta[lcms]] != -1)
+        return dp[pos][sumn][sta[lcms]];
+
+    int up = limit ? a[pos] : 9;
+    ll rst = 0;
+    for (int i = 0; i <= up; i++) {
+        ll lcmss = lcms;
+        if (i) lcmss = lcm(lcms,i);
+        rst += dfs(pos - 1,(sumn*10+i)%mod,lcmss, limit && i == a[pos]);
+    }
+    if (!limit)
+        dp[pos][sumn][sta[lcms]] = rst;
+    return rst;
+}
+
+ll solve(ll x){
+    int pos = 0;
+    while (x){
+        a[++pos] = x%10;
+        x/=10;
+    }
+
+    ll aa = dfs(pos,0,1,true);
+    return aa;
+}
+int main() {
+    ios_base::sync_with_stdio(false);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    //auto start = clock();
+
+
+    memset(dp,-1,sizeof(dp));
+    int cnt = 0;
+    for (int i=1;i<=mod;i++){
+        if (mod%i==0) sta[i] = cnt++;
+    }
+    int t;
+    cin>>t;
+    while (t--){
+        ll n,m;
+        cin>>n>>m;
+        cout<<solve(m) - solve(n-1)<<endl;
+    }
+
+    //auto end = clock();
+    //cerr << "Run Time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
+    return 0;
+}

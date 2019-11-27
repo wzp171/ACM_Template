@@ -1,0 +1,29 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+const ll mx = 2e6 + 7;
+const ll inf = 1e9+7;
+const ll mo = 1e9+7;
+ll dp[257][257],p[5007],inv[5007],re[mx],re2[mx];
+ll pow_mod(int a, int n, int m)
+{
+    if(n == 0) return 1;
+    ll x = pow_mod(a, n/2, m);
+    long long ans = (long long)x * x % m;
+    if(n % 2 == 1) ans = ans *a % m;
+    return (ll)ans;
+}
+ll C(ll n,ll m ) {
+    return p[n] * inv[m] % mo * inv[n - m] % mo;
+}
+int main() {
+    ios_base::sync_with_stdio(false);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    p[0] = inv[0] =1;
+    for(int i=1;i<=2000;i++)
+        p[i] = p[i-1]*i%mo,inv[i] = pow_mod(p[i],mo-2,mo);  //300ms
+C(n, k )//µ÷ÓÃ

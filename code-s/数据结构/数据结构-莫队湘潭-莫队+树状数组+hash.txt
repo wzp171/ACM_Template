@@ -1,0 +1,125 @@
+题意：大意是有一个序列，然后问你[L,R]区间内 ，满足 i < j 并且ai 和 aj 的差值不超过K的 数字对有多少对。
+数据范围是1 <= n,m <= 27000 , 1 <= k <= 10^9 。
+注意莫队hash卡常数，这里要提前hash到VECTOR g中，卡过
+#include <bits/stdc++.h>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+typedef long long ll;
+const ll mx = 3e5 + 7;
+const ll inf = 8e9+7;
+vector<ll> v,g[mx];
+ll unit;
+ll a[mx],ans[mx];
+struct node {
+    ll l,r;
+    ll id;
+}qj[mx];
+long long temp=0;
+ll bit[mx];
+ll n,m,k;
+ll lowbit(ll x)
+{
+    return x&(-x);
+}
+void add(ll i,ll x)
+{
+    while(i<=n)
+    {
+        bit[i]+=x;
+        i+=lowbit(i);
+    }
+}
+ll sum(ll i)
+{
+    ll s=0;
+    while(i>0)
+    {
+        s+=bit[i];
+        i-=lowbit(i);
+    }
+    return s;
+}
+bool cmp(node a,node b){
+    if ((a.l/unit)!=(b.l/unit))
+        return (a.l/unit) < (b.l/unit);
+    else return a.r<b.r;
+}
+ll getid (ll x) {
+    return lower_bound(v.begin(), v.end(), x) - v.begin();
+}
+void solve(){
+    //cin>>n>>m>>k;
+    scanf("%lld%lld%lld",&n,&m,&k);
+    for (int i=1;i<=n;i++) {
+        //cin >> a[i];
+        scanf("%lld",&a[i]);
+        v.push_back(a[i]);
+        v.push_back(a[i]+k);
+        v.push_back(a[i]-k-1);
+    }
+    sort(v.begin(),v.end());
+    v.erase(unique(v.begin(), v.end()), v.end());
+    n = v.end() - v.begin();
+    n=n*3;
+    for (int i=1;i<=m;i++) {
+        //cin >> qj[i].l >> qj[i].r;
+        scanf("%lld%lld",&qj[i].l ,&qj[i].r);
+        qj[i].id = i;
+    }
+    unit = (int)sqrt(n);
+    sort(qj+1,qj+m+1,cmp);
+
+    for(int i=1;i<=n;i++){
+        int re = getid(a[i]);
+        g[re].push_back(getid(a[i]-k-1));
+        g[re].push_back((getid(a[i]+k)));
+        a[i] = re;
+    }
+
+    ll ql=1,qr =0;
+    for (int i=1;i<=m;i++)
+    {
+        while (qr<qj[i].r) {
+            qr++;
+            //temp += sum(getid(a[qr]+k)) -sum(getid(a[qr]-k-1));
+            temp += sum((g[a[qr]][1])) -sum(g[a[qr]][0]);
+            add(a[qr], 1);
+        }
+        while (qr>qj[i].r){
+            //add(getid(a[qr]),-1);
+            add(a[qr],-1);
+            //temp -= sum(getid(a[qr]+k)) -sum(getid(a[qr]-k-1));
+            temp -= sum((g[a[qr]][1])) -sum(g[a[qr]][0]);
+            qr--;
+        }
+        while (ql<qj[i].l){
+            add(a[ql], -1);
+            //temp -= sum(getid(a[ql]+k)) -sum(getid(a[ql]-k-1));
+            temp -= sum((g[a[ql]][1])) -sum(g[a[ql]][0]);
+            ql++;
+        }
+        while (ql>qj[i].l){
+            ql--;
+            //temp += sum(getid(a[ql]+k)) -sum(getid(a[ql]-k-1));
+            temp += sum((g[a[ql]][1])) -sum(g[a[ql]][0]);
+            //add(getid(a[ql]), 1);
+            add(a[ql], 1);
+        }
+        ans[qj[i].id] = temp;
+    }
+    for (int i=1;i<=m;i++)
+        printf("%lld\n",ans[i]);//cout<<ans[i]<<endl;
+}
+int main() {
+    ios_base::sync_with_stdio(false);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    //auto start = clock();
+    solve();
+    //auto end = clock();
+    //cerr << "Run Time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
+    return 0;
+}

@@ -1,0 +1,79 @@
+洛谷消防员，一个树形图，一个消防栓能管辖2个相邻的点，问最少需要多少个消防栓。F换成DP
+F[i][0]表示可以覆盖到从节点i向上2层的最小消防站个数
+F[i][1]表示可以覆盖到从节点i向上1层的最小消防站个数
+F[i][2]表示可以覆盖到从节点i向上0层的最小消防站个数
+F[i][3]表示可以覆盖到从节点i向上-1层的最小消防站个数
+F[i][4]表示可以覆盖到从节点i向上-2层的最小消防站个数
+“覆盖到从节点i向上1层”指的是“以节点i为根的整棵子树和i的父亲都被覆盖”，
+“覆盖到从节点i向上-1层”指的是“节点i的所有儿子和它们的子孙都被覆盖”。
+https://www.luogu.org/problemnew/solution/P2279
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+const int mx = 2e6 + 7;
+const int mo = 1e9+7;
+const int inf = 8e9+7;
+int cnt = 0,n;
+int head[mx] = {0};
+ll dp[mx/10][5];
+struct node{
+    int w;
+    int to;
+    int next;
+}edge[mx];
+void add(int u,int v,int w){
+    cnt++;
+    edge[cnt].w = w;
+    edge[cnt].to = v;
+    edge[cnt].next = head[u];
+    head[u] = cnt;
+}
+void dfsdp(int now) {
+    dp[now][0] = 1;
+    dp[now][3] = 0;
+    dp[now][4] = 0;
+    for (int i = head[now]; i; i = edge[i].next) {
+        int son = edge[i].to;
+        dfsdp(son);
+        dp[now][0] += dp[son][4];
+        dp[now][3] += dp[son][2];
+        dp[now][4] += dp[son][3];
+    }
+    if (head[now] == 0)
+        dp[now][1] = dp[now][2] = 1;
+    else {
+        dp[now][1] = dp[now][2] = inf;
+        for (int i = head[now]; i; i = edge[i].next) {
+            int son = edge[i].to;
+            ll DP1, DP2;
+            DP1 = dp[son][0];
+            DP2 = dp[son][1];
+            for (int j = head[now]; j; j = edge[j].next) {
+                if (i == j) continue;
+                int son2 = edge[j].to;
+                DP1 += dp[son2][3];
+                DP2 += dp[son2][2];
+            }
+            dp[now][1] = min(dp[now][1], DP1);
+            dp[now][2] = min(dp[now][2], DP2);
+        }
+    }
+    for (int i = 1; i <= 4; i++)
+        dp[now][i] = min(dp[now][i], dp[now][i - 1]);
+}
+int main() {
+    ios_base::sync_with_stdio(false);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    cin>>n;
+    for (int i=2;i<=n;i++) {
+        int re;
+        cin >> re;
+        add(re,i,1);
+    }
+    dfsdp(1);
+    cout<<dp[1][2]<<endl;
+    return 0;
+}

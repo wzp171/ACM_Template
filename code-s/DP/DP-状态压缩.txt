@@ -1,0 +1,46 @@
+#include <bits/stdc++.h>
+//设 dp[i][j]表示以第i只奶牛为结尾的状态为j的队伍混乱的方案数是多少
+//约翰家有N头奶牛，第i头奶牛的编号是Si，每头奶牛的编号都是唯一的。
+//这些奶牛最近 在闹脾气，为表达不满的情绪，她们在挤奶的时候一定要排成混乱的队伍。
+//在一只混乱的队 伍中，相邻奶牛的编号之差均超过K。
+//比如当K = 1时，1, 3, 5, 2, 6, 4就是一支混乱的队伍， 而1, 3, 6, 5, 2, 4不是，因为6和5只差1。P2915
+//有多少种队形是混乱的呢？
+using namespace std;
+typedef long long ll;
+const ll mx = 2e5 + 7;
+ll dp[17][1<<17];
+int a[77];
+int main() {
+    ios_base::sync_with_stdio(false);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    int n, k;
+    cin >> n >> k;
+    for (int i=1;i<=n;i++)
+        cin>>a[i];
+    for (int i = 1; i <= n; i++)
+        dp[i][1 << (n-i)] = 1;
+
+    for (int i = 1; i < 1 << n; i++) { //枚举状态
+        for (int j = 1; j <= n; j++) {  //枚举结尾奶牛 
+            if(dp[j][i]) continue;//把初始化去掉
+            if (!(i & (1 << (n - j))))
+                continue;     //判断这种情况是否存在 
+            int m = i ^(1 << (n - j)); //得到一个没有选择当前结尾奶牛j的状态 
+            for (int re = 1; re <= n; re++) {
+	//枚举这个状态m的结尾 
+                if (re == j) continue;
+                if (abs(a[re] - a[j]) > k)
+                    dp[j][i] += dp[re][m];
+	//符合混乱的条件，进行转移 
+            }
+        }
+    }
+    ll ans = 0;
+    for (int i = 1; i <= n; i++)
+        ans += dp[i][(1 << n) - 1];
+    cout << ans << endl;
+    return 0;
+}

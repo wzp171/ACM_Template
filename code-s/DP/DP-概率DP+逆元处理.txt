@@ -1,0 +1,69 @@
+题意:给你n个骑士,n+1个格子,刚开始第i个骑士站在第i个格子上,然后每个骑士都有一个初始的方向
+(向左或者向右,碰到格子的终点会反向),然后两个骑士相遇会进行决斗,每个骑士胜利的概率都是1/2,
+问最后剩下第n个骑士的概率
+思路:因为最后一个骑士肯定是往左走击败之前剩余的所有骑士思路:因为最后一个骑士肯定是往左走击败之前剩余的所有骑士,
+逆元：
+如果b与c互素，则(a/b)%c=a*b^(\Phi(c)-1)%c其中\Phi是欧拉函数。或者(a/b)%c=a*b^(c-2)%c
+如果b与c不互素，则(a/b)%c=(a%bc)/b
+对于b与c互素和不互素都有(a/b)%c=(a%bc)/b成立
+乘法逆元用扩展欧几里得定理：
+
+#include <bits/stdc++.h>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+typedef long long ll;
+const ll mx = 3e5 + 7;
+const ll inf = 8e9+7;
+const ll mod = 1e9+7;
+ll dp[1007][1007];
+ll a[mx],ans[mx];
+ll qpow(ll a, ll k){
+    ll res = 1;
+    while(k){
+        if(k&1) res = (res*a)%mod;
+        a = (a*a)%mod;
+        k >>= 1;
+    }
+    return res;
+}
+void solve(int cas){
+    memset(dp,0,sizeof(dp));
+    int n;
+    cin>>n;
+    ll qpow2 = qpow(2,mod-2)%mod;
+    dp[0][0]=1;
+    int dir;
+    for(int i=1;i<=n;i++) {
+        cin >> a[i];dir = a[i];
+        if(i==1) dir = 1;
+        if(i==n) dir = 0;
+        if (dir==1){
+            for(int j =1;j<=i;j++)
+                dp[i][j] = dp[i-1][j-1];
+        }
+        else {
+            for (int j = i - 1; j >= 2; j--){
+                dp[i][j] = (dp[i-1][j]*qpow2 + dp[i][j+1]*qpow2)%mod;
+            }
+            dp[i][1] = (dp[i-1][1]+dp[i][2])%mod;
+        }
+    }
+    cout<<"Case #"<<cas<<": "<<dp[n][1]*qpow2%mod<<endl;
+}
+int main() {
+    ios_base::sync_with_stdio(false);
+#ifdef ACM_LOCAL
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+    //auto start = clock();
+    int t;
+    cin>>t;
+    for(int Case = 1;Case<=t;Case++) {
+        solve(Case);
+    }
+    //auto end = clock();
+    //cerr << "Run Time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
+    return 0;
+}
